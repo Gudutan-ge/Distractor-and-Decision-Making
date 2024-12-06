@@ -1,6 +1,6 @@
 # Distractor and Decision-Making
 
-This project explores the effects of distractor value on decision-making behavior through experiments, data processing, modeling, and simulations. Below is an overview of the project structure and usage.
+This project explores the effects of distractor value on decision-making behavior through experiments, data processing, modeling, and simulations. Below is an overview of the project structure.
 
 ---
 
