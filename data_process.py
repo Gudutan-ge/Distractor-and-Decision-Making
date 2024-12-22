@@ -88,7 +88,7 @@ for i in range(len(bins) - 1):
     # 分组端点
     bin_start = bins[i]
     bin_end = bins[i + 1]
-    # 筛选出该范围内的 n_value3 数据
+    # 筛选出该范围内的 n_valdaue3 数据
     bin_data = results1_df[(results1_df['n_value3'] > bin_start) & (results1_df['n_value3'] <= bin_end)]
     # 使用 Logistic 函数拟合
     popt, _ = curve_fit(logistic, bin_data['value_diff'], bin_data['accuracy'], p0=[0, 1, 1])
@@ -109,19 +109,27 @@ plt.show()
 
 # 将结果转换为 DataFrame
 results2_df = pd.DataFrame(results2)
+
 # 分组范围
 bins = np.linspace(results2_df['n_value3'].min(), results2_df['n_value3'].max(), 7)
-# 分组，计算每组的平均 efficiency
+
+# 分组，计算每组的平均 efficiency 和标准误差
 results2_df['n_value3'] = pd.cut(results2_df['n_value3'], bins=bins)
-grouped = results2_df.groupby('n_value3')['efficiency'].mean().reset_index()
+grouped = results2_df.groupby('n_value3')['efficiency'].agg(['mean', 'std', 'count']).reset_index()
+
 # 提取每个组的区间起始点和 efficiency 平均值
 group_centers = [group.left + (group.right - group.left) / 2 for group in grouped['n_value3']]
-avg_efficiency = grouped['efficiency']
-# 绘制结果
-plt.plot(group_centers, avg_efficiency, marker='o', color='b', label='Extra Time((RT_3opt - RT_2opt) / RT_2opt)')
-plt.xlabel('distracter value(norm)')
+
+# 获取平均值和标准误差
+avg_efficiency = grouped['mean']
+std_efficiency = grouped['std'] / np.sqrt(grouped['count'])  # 标准误差 (标准差除以样本数量的平方根)
+
+# 绘制结果，并添加误差条
+plt.errorbar(group_centers, avg_efficiency, yerr=std_efficiency, fmt='-o', color='b', label='Extra Time((RT_3opt - RT_2opt) / RT_2opt)')
+
+plt.xlabel('Distracter Value (norm)')
 plt.ylabel('Extra Time')
-plt.title('effect on choice efficiency')
+plt.title('Effect on Choice Efficiency')
 plt.grid(True)
 plt.legend()
 plt.show()
@@ -132,19 +140,27 @@ plt.show()
 
 # 将结果转换为 DataFrame
 results3_df = pd.DataFrame(results3)
+
 # 分组范围
 bins = np.linspace(results3_df['n_value3'].min(), results3_df['n_value3'].max(), 6)
-# 分组，计算每组的平均 taaget_choice
+
+# 分组，计算每组的平均 target_choice 和标准误差
 results3_df['n_value3'] = pd.cut(results3_df['n_value3'], bins=bins)
-grouped = results3_df.groupby('n_value3')['target_choice'].mean().reset_index()
-# 提取每个组的区间起始点和 taaget_choice 平均值
+grouped = results3_df.groupby('n_value3')['target_choice'].agg(['mean', 'std', 'count']).reset_index()
+
+# 提取每个组的区间起始点和 target_choice 平均值
 group_centers = [group.left + (group.right - group.left) / 2 for group in grouped['n_value3']]
-avg_target_choice = grouped['target_choice']
-# 绘制结果
-plt.plot(group_centers, avg_target_choice, marker='o', color='b', label='Target Choice')
-plt.xlabel('distracter value(norm)')
+
+# 获取平均值和标准误差
+avg_target_choice = grouped['mean']
+std_target_choice = grouped['std'] / np.sqrt(grouped['count'])  # 标准误差 (标准差除以样本数量的平方根)
+
+# 绘制结果，并添加误差条
+plt.errorbar(group_centers, avg_target_choice, yerr=std_target_choice, fmt='-o', color='b', label='Target Choice')
+
+plt.xlabel('Distracter Value (norm)')
 plt.ylabel('Target Choice')
-plt.title('Choice behavior varies with distracter value')
+plt.title('Choice Behavior Varies with Distracter Value')
 plt.grid(True)
 plt.legend()
 plt.show()

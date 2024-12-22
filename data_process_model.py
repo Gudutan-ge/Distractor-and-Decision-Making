@@ -98,19 +98,27 @@ plt.show()
 
 # 将结果转换为 DataFrame
 results3_df = pd.DataFrame(results3)
+
 # 分组范围
 bins = np.linspace(results3_df['n_value3'].min(), results3_df['n_value3'].max(), 6)
-# 分组，计算每组的平均 taaget_choice
+
+# 分组，计算每组的平均 target_choice 和标准误差
 results3_df['n_value3'] = pd.cut(results3_df['n_value3'], bins=bins)
-grouped = results3_df.groupby('n_value3')['target_choice'].mean().reset_index()
-# 提取每个组的区间起始点和 taaget_choice 平均值
+grouped = results3_df.groupby('n_value3')['target_choice'].agg(['mean', 'std', 'count']).reset_index()
+
+# 提取每个组的区间起始点和 target_choice 平均值
 group_centers = [group.left + (group.right - group.left) / 2 for group in grouped['n_value3']]
-avg_target_choice = grouped['target_choice']
-# 绘制结果
-plt.plot(group_centers, avg_target_choice, marker='o', color='b', label='Target Choice')
-plt.xlabel('distracter value(norm)')
+
+# 获取平均值和标准误差
+avg_target_choice = grouped['mean']
+std_target_choice = grouped['std'] / np.sqrt(grouped['count'])  # 标准误差 (标准差除以样本数量的平方根)
+
+# 绘制结果，并添加误差条
+plt.errorbar(group_centers, avg_target_choice, yerr=std_target_choice, fmt='-o', color='b', label='Target Choice')
+
+plt.xlabel('Distracter Value (norm)')
 plt.ylabel('Target Choice')
-plt.title('Model Choice behavior varies with distracter value')
+plt.title('Model Choice Behavior Varies with Distracter Value')
 plt.grid(True)
 plt.legend()
 plt.show()
